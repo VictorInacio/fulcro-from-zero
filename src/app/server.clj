@@ -1,5 +1,6 @@
 (ns app.server
   (:require
+    [app.db :as db]
     [app.model.car :as car]
     [app.model.person :as person]
     [app.model.todo :as todo]
@@ -22,6 +23,10 @@
                   ::pc/mutation-join-globals [:tempids]}
      ::p/mutate  pc/mutate-async
      ::p/plugins [(pc/connect-plugin {::pc/register my-resolvers})
+                  (p/env-wrap-plugin (fn [env]
+                                       (assoc env
+                                         :db (db/get-db)
+                                         :connection (db/connection))))
                   (p/post-process-parser-plugin p/elide-not-found)
                   p/error-handler-plugin]}))
 

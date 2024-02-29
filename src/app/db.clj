@@ -9,8 +9,11 @@
   (d/list-databases client {})
   (d/create-database client {:db-name "todo-db"}))
 
+(defn connection []
+  (d/connect client DB-NAME))
+
 (defn get-db []
-  (d/db (d/connect client DB-NAME)))
+  (d/db (connection)))
 
 (defn transact [tx-data]
   (d/transact (d/connect client DB-NAME) {:tx-data tx-data}))
