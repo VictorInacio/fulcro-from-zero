@@ -1,8 +1,6 @@
 (ns app.server
   (:require
     [app.db :as db]
-    [app.model.car :as car]
-    [app.model.person :as person]
     [app.model.todo :as todo]
     [clojure.core.async :as async]
     [com.fulcrologic.fulcro.server.api-middleware :as fmw :refer [not-found-handler wrap-api]]
@@ -20,7 +18,7 @@
        (update ::pc/index-resolvers #(into {} (map (fn [[k v]] [k (dissoc v ::pc/resolve)])) %))
        (update ::pc/index-mutations #(into {} (map (fn [[k v]] [k (dissoc v ::pc/mutate)])) %)))})
 
-(def my-resolvers [car/resolvers person/resolvers todo/resolvers [index-explorer]])
+(def my-resolvers [todo/resolvers [index-explorer]])
 
 ;; setup for a given connect system
 (def parser

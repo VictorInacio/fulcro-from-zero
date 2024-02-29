@@ -40,7 +40,7 @@
       (a {:href    "#"
           :onClick (fn []
                      (df/load! this [:todo-item/id id] TodoDetail
-                               {:target (picker-path :todo-picker/selected-todo)}))}
+                               {:target (picker-path [:todo-picker/selected-todo])}))}
          title)))
 
 (def ui-todo-list-item (comp/factory TodoListItem {:keyfn :todo-item/id}))
