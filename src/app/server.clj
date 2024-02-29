@@ -12,7 +12,15 @@
     [ring.middleware.not-modified :refer [wrap-not-modified]]
     [ring.middleware.resource :refer [wrap-resource]]))
 
-(def my-resolvers [car/resolvers person/resolvers todo/resolvers])
+(pc/defresolver index-explorer [env _]
+  {::pc/input  #{:com.wsscode.pathom.viz.index-explorer/id}
+   ::pc/output [:com.wsscode.pathom.viz.index-explorer/index]}
+  {:com.wsscode.pathom.viz.index-explorer/index
+   (-> (get env ::pc/indexes)
+       (update ::pc/index-resolvers #(into {} (map (fn [[k v]] [k (dissoc v ::pc/resolve)])) %))
+       (update ::pc/index-mutations #(into {} (map (fn [[k v]] [k (dissoc v ::pc/mutate)])) %)))})
+
+(def my-resolvers [car/resolvers person/resolvers todo/resolvers [index-explorer]])
 
 ;; setup for a given connect system
 (def parser
@@ -49,5 +57,7 @@
                  [:todo-item/id
                   :todo-item/title
                   :todo-item/completed]}])
+
+  (test-parser ['(app.model.todo/add-todo {:todo-item/title "make food"})])
 
   )

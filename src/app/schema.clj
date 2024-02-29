@@ -18,6 +18,7 @@
                            :db/doc         "Todo item completion"}])
 
 (comment
+  squuid
   (db/transact todo-schema-tx-data)
 
   (def sample-todo {:todo-item/id    1
@@ -35,4 +36,8 @@
                              (db/get-db))))
 
   (db/pull (db/get-db) '[*] todo-id)
+
+  (db/q '[:find (max ?id)
+          :where
+          [?e :todo-item/id ?id]] (db/get-db))
   )
