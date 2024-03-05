@@ -1,6 +1,6 @@
 (ns app.server
   (:require
-    [app.db :as db]
+    [app.db.client :as db]
     [app.model.todo :as todo]
     [clojure.core.async :as async]
     [com.fulcrologic.fulcro.server.api-middleware :as fmw :refer [not-found-handler wrap-api]]
@@ -56,6 +56,7 @@
                   :todo-item/title
                   :todo-item/completed]}])
 
-  (test-parser ['(app.model.todo/add-todo {:todo-item/title "make food"})])
-
+  (test-parser [`(app.model.todo/todo-save {:todo-item/id        ~(random-uuid)
+                                            :todo-item/title     "make food"
+                                            :todo-item/completed false})])
   )

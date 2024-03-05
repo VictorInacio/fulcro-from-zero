@@ -1,4 +1,4 @@
-(ns app.db
+(ns app.db.client
   (:require [datomic.client.api :as d]))
 
 (def DB-NAME {:db-name "todo-db"})
@@ -7,7 +7,9 @@
                        :system      "dev"}))
 (comment
   (d/list-databases client {})
-  (d/create-database client {:db-name "todo-db"}))
+  (d/delete-database client {:db-name "todo-db"})
+  (d/create-database client {:db-name "todo-db"})
+  )
 
 (defn connection []
   (d/connect client DB-NAME))
