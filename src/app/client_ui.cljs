@@ -22,10 +22,6 @@
                    :todo-item/title     ""
                    :todo-item/completed false}}
   (div
-    (input {:type     "checkbox" :name id :checked completed
-            :onChange #(comp/transact! this
-                                       [(todo/todo-toogle-completed {:todo-item/id        id
-                                                                     :todo-item/completed (not completed)})])})
     (if completed
       (div :.ui.disabled.input
            (input :.w-full {:type  "text"
@@ -37,25 +33,52 @@
                             :placeholder "add todo title"
                             :onChange    #(mut/set-string! this :ui/edit-title :event %)
                             :onBlur      (fn [e]
-                                           (js/console.log (evt/target-value e))
-                                           ;(js/console.log (evt/target-value e))
                                            (comp/transact! this
                                                            [(todo/todo-save {:todo-item/id        id
                                                                              :todo-item/title     (evt/target-value e)
                                                                              :todo-item/completed false})]))})))))
 
+
 (def ui-todo-input (comp/factory TodoInput))
+
+(defsc TodoDisplay [this {:todo-item/keys [id title completed]
+                          ;:ui/keys        [edit-title]
+                          }]
+  {:query         [:todo-item/id :todo-item/title :todo-item/completed #_:ui/edit-title]
+   :ident         :todo-item/id
+   :initial-state {}}
+  (div
+    (input {:type     "checkbox" :name id :checked completed
+            :onChange #(comp/transact! this
+                                       [(todo/todo-save {:todo-item/id        id
+                                                         :todo-item/completed (not completed)})])})
+    (if completed
+      (div :.ui.disabled.input
+           (input :.w-full {:type  "text"
+                            :value title
+                            :style {:text-decoration "line-through"}}))
+      (div :.ui.input
+           (input :.w-full {:type        "text"
+                            :value       title
+                            :placeholder "add todo title"
+                            ;:onChange    #(mut/set-string! this :ui/edit-title :event %)
+                            :onChange      #(comp/transact!
+                                            this
+                                            [(todo/todo-save {:todo-item/id    id
+                                                              :todo-item/title (evt/target-value %)})])})))))
+
+(def ui-todo-display (comp/factory TodoDisplay))
 
 (defsc TodoList [this {:todo-list/keys [todos]}]
   {:query         [{:todo-list/todos (comp/get-query TodoInput)}]
    :ident         (fn [] [:component/id :todo-list])
-   :initial-state {:todo-list/todos []}}
+   :initial-state {:todo-list/todos {}}}
   (div :.ui.segment
        (h3 :.ui.header "Your Todos")
        (ul
          (map (fn [{:todo-item/keys [id] :as todo-item}]
                 (div {:key   id
-                      :style {:display "flex"}} (ui-todo-input todo-item)
+                      :style {:display "flex"}} (ui-todo-display todo-item)
                      (button {:onClick #(comp/transact! this
                                                         [(todo/todo-delete {:todo-item/id id})])}
                              "delete"))) todos))))
@@ -72,9 +95,7 @@
          (h3 "Add a todo")
          (ui-todo-input todo-input))
        (div
-         (ui-todo-list (conj todo-list {:todo-item/id        (h/new-id)
-                                        :todo-item/title     ""
-                                        :todo-item/completed false})))))
+         (ui-todo-list todo-list))))
 
 (defn- init-load-fn [app] (df/load! app :all-todos TodoInput
                                     {:target [:component/id :todo-list :todo-list/todos]}))
